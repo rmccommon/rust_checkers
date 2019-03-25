@@ -1,0 +1,8 @@
+[package]
+name = "rust_chess"
+version = "0.1.0"
+authors = ["rmccommon <mccommon@email.arizona.edu>"]
+edition = "2018"
+
+[dependencies]
+piston_window = "0.81.0"
