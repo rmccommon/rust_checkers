@@ -2,22 +2,33 @@ use crate::game_board::Board;
 
 pub struct Piece {
     player: u8,
-    x: u32,
-    y: u32,
-    is_dead: bool,
     is_king: bool,
     p_id: u32,
-    board: Board,
 }
 
 impl Piece {
-    pub fn new(player:u8, x:u32, y:u32,count:u32, board: Board) -> Piece{
-        let new_piece = Piece{player:player, x:x, y:y, is_dead:false, is_king:false,p_id:count,board:board};
+    pub fn new(player:u8, count:u32) -> Piece{
+        let new_piece = Piece{player:player, is_king:false, p_id:count};
         return new_piece;
     }
+    pub fn get_p_id(&self)->u32{
+        self.p_id
+    }
+    pub fn get_player(&self)->u8{
+        self.player
+    }
 }
+
+//These two impl are for making it compatible with the enum in game_board
+impl Copy for Piece {}
+impl Clone for Piece{
+        fn clone(&self)-> Piece{
+            *self
+        }
+}
+
 impl std::fmt::Display for Piece{
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result{
-        write!(f, "Piece: {}, is_king:{}, is_dead: {}, belongs to player {} and is located at x:{} y:{}", self.p_id, self.is_king, self.is_dead, self.player, self.x, self.y)
+        write!(f, "Piece: {}, is_king:{}, belongs to player {}", self.p_id, self.is_king,  self.player)
     }
 }
