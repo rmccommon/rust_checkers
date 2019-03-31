@@ -48,7 +48,7 @@ impl Board{
         //TODO: set up the game pieces for the right players.
     }
 
-    //Checks if a spoace is Empty, used for moving pieces
+    //Checks if a space is Empty, used for moving pieces
     pub fn is_empty(&self, x:usize, y:usize) -> bool{
         match self.b_array[y][x]{
             Space::Empty => true,

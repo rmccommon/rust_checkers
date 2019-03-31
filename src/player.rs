@@ -17,6 +17,14 @@ impl Player{
     pub fn new(id:u8, board:Board) -> Player{
         Player{id, board}
     }
+	
+    fn check_move(x1:usize, y1:usize, x2:usize, y2:usize){
+	if (x2-x1 < 2 || X2-X1 > -2) && (y2-y1 < 2 || x2-x1 > -2) {
+		true
+	}else{
+		false
+	}
+    }
 
     //This moves a piece to an empty spot
     //TODO: check if this spot is either one jump away or not
