@@ -1,19 +1,27 @@
-use crate::game_board::Board;
+/*
+This object represents the game piece.
+It keeps track of who it is owned by.
+If its a king or not.
+*/
 
 pub struct Piece {
     player: u8,
     is_king: bool,
-    p_id: u32,
 }
 
+
 impl Piece {
-    pub fn new(player:u8, count:u32) -> Piece{
-        let new_piece = Piece{player:player, is_king:false, p_id:count};
-        return new_piece;
+    //create a new piece and assigns an owner
+    pub fn new(player:u8) -> Piece{
+        Piece{player:player, is_king:false}
     }
-    pub fn get_p_id(&self)->u32{
-        self.p_id
+
+    //gets king status
+    pub fn is_king(&self) -> bool{
+        self.is_king
     }
+
+    //gets the player id that owns it
     pub fn get_player(&self)->u8{
         self.player
     }
@@ -27,8 +35,10 @@ impl Clone for Piece{
         }
 }
 
+//This is mostly for debug purposes but
+//it implements a way for println! to display a piece object
 impl std::fmt::Display for Piece{
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result{
-        write!(f, "Piece: {}, is_king:{}, belongs to player {}", self.p_id, self.is_king,  self.player)
+        write!(f, "This is a game piece, is_king:{}, belongs to player {}",  self.is_king,  self.player)
     }
 }
