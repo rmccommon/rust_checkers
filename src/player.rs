@@ -17,9 +17,9 @@ impl Player{
     pub fn new(id:u8, board:Board) -> Player{
         Player{id, board}
     }
-	
-    fn check_move(x1:usize, y1:usize, x2:usize, y2:usize){
-	if (x2-x1 < 2 || X2-X1 > -2) && (y2-y1 < 2 || x2-x1 > -2) {
+
+    fn check_move(x1:i32, y1:i32, x2:i32, y2:i32) -> bool{
+	if (x2-x1 == 1 || x2-x1 == -1) && (y2-y1 == 1 || y2-y1 == -1) {
 		true
 	}else{
 		false
