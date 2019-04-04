@@ -1,45 +1,80 @@
+/*
+This is the view for the game
+it is responsible for drawing the board and its pieces
+*/
+
 
 use graphics::types::Color;
 use graphics::{Context, Graphics};
-// View for the game and its logic
+
 use crate::game_board::{Board, Space};
 use crate::player::Player;
+use crate::piece::Piece;
 
 pub struct game_view{
-    window_size: f64,
+    board_size: f64,
     background_color: Color,
 }
 
 impl game_view{
+
     pub fn new(size:f64,)-> game_view{
-        game_view{window_size:size, background_color:[1.0,1.0,1.0,1.0]}
+        game_view{board_size:size, background_color:[1.0,1.0,1.0,1.0]}
     }
 
+    //This is the function that draws the checkers board and its pieces
     pub fn draw<G:Graphics>(&self, controller: &Player, c: &Context, g: &mut G){
+        let p1 = 0;
+        let p2 = 1;
         use graphics::{Rectangle,Ellipse};
 
-        let (start_x, start_y) = (self.window_size/16.0, 10.0);
+        //this is the starting location of the board in the Window
+        //(0, 0) is the upper left corner of the window
+        let (start_x, start_y) = (5.0, 5.0);
 
+        //Colors of the spaces on the Board
+        //[red, green, blue, alpha]
         let red:Color = [1.0,0.0,0.0,1.0];
         let black:Color = [0.0,0.0,0.0,1.0];
 
-        let square_size = self.window_size/10.0;
+        //Colors of the players pieces
+        let p1_color = [153.0/255.0, 0.0, 0.0, 1.0];
+        let p2_color = [17.0/255.0, 17.0/255.0, 9.0/255.0, 1.0];
 
-        let board_background = Rectangle::new(self.background_color).draw([0.0,0.0,self.window_size,self.window_size], &c.draw_state, c.transform, g);
+        //size of a space
+        let square_size = self.board_size/10.0;
+
+        //creats a rectangle object with the color red
         let space_playable = Rectangle::new(red);
+        //creates a rectangle object that is black
         let space_unplayable = Rectangle::new(black);
-        let piece = Ellipse::new(black);
+        let p1_piece = Ellipse::new(p1_color);
+        let p2_piece = Ellipse::new(p2_color);
+
+        //gets the board from the controller
+        //this will probably change in the future since it's not exactly MVC
         let board = controller.get_board();
 
+        //Go through the board and draw every space
+        //if there is a piece draw that too
+        for i in 0..10{
+            for j in 0..10{
+                //creates the dimensions and position of where we want to draw a shape
+                let rect = [((i as f64)*square_size)+start_x, ((j as f64)*square_size)+start_y, square_size, square_size];
 
-        for i in 0..9{
-            for j in 0..9{
-                let rect = [((i as f64)*square_size)+start_x,((j as f64)*square_size)+start_y,square_size,square_size];
                 match board.get_space(j, i){
                     Space::Empty => {space_playable.draw(rect, &c.draw_state, c.transform, g);},
+
                     Space::NotPlayable => {space_unplayable.draw(rect, &c.draw_state, c.transform, g);},
-                    Space::Full(_) => {space_playable.draw(rect, &c.draw_state, c.transform, g);
-                                        piece.draw(rect, &c.draw_state, c.transform, g);}
+
+
+                    Space::Full(p) => {space_playable.draw(rect, &c.draw_state, c.transform, g);
+                                        if p.get_player() == p1{
+                                                p1_piece.draw(rect, &c.draw_state, c.transform, g);
+                                        }else{
+                                                p2_piece.draw(rect, &c.draw_state, c.transform, g);
+                                        }
+                                    }
                 }
             }
         }

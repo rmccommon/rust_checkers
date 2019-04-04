@@ -46,6 +46,25 @@ impl Board{
 
     pub fn setup_board(&mut self){
         //TODO: set up the game pieces for the right players.
+        for i in 0..4{
+            for j in 0..10{
+                match self.b_array[i][j]{
+                    Space::Empty => {self.b_array[i][j] = Space::Full(Piece::new(0));},
+                    _ => {}
+                }
+            }
+        }
+        for i in 6..10{
+            for j in 0..10{
+                match self.b_array[i][j]{
+                    Space::Empty => {self.b_array[i][j] = Space::Full(Piece::new(1));},
+                    _ => {}
+                }
+            }
+        }
+
+
+
     }
     pub fn get_space(&self, x:usize, y:usize) -> Space{
         self.b_array[y][x]

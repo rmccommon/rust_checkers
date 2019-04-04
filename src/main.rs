@@ -32,7 +32,8 @@ fn main() {
     let  mut events = Events::new(EventSettings::new().lazy(true));
     let mut gl = GlGraphics::new(opengl);
 
-    let board1 = game_board::Board::new();
+    let mut board1 = game_board::Board::new();
+    board1.setup_board();
     let g_view = game::game_view::new(500.0);
     let mut player1 = player::Player::new(0, board1);
 
