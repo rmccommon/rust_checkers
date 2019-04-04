@@ -11,7 +11,7 @@ use crate::piece::Piece;
 //This is the enum for what a space on the board can be
 //Rust has a nice feature where an enum can hold a struct, like piece.
 #[derive(Clone, Copy)]
-enum Space {
+pub enum Space {
     Empty,
     NotPlayable,
     Full(Piece),
@@ -46,6 +46,9 @@ impl Board{
 
     pub fn setup_board(&mut self){
         //TODO: set up the game pieces for the right players.
+    }
+    pub fn get_space(&self, x:usize, y:usize) -> Space{
+        self.b_array[y][x]
     }
 
     //Checks if a space is Empty, used for moving pieces
