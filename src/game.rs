@@ -50,6 +50,7 @@ impl game_view{
         let space_unplayable = Rectangle::new(black);
         let p1_piece = Ellipse::new(p1_color);
         let p2_piece = Ellipse::new(p2_color);
+        let circle_offset = square_size/10.0;
 
         //gets the board from the controller
         //this will probably change in the future since it's not exactly MVC
@@ -61,6 +62,7 @@ impl game_view{
             for j in 0..10{
                 //creates the dimensions and position of where we want to draw a shape
                 let rect = [((i as f64)*square_size)+start_x, ((j as f64)*square_size)+start_y, square_size, square_size];
+                let circ = [((i as f64)*square_size)+start_x+circle_offset, ((j as f64)*square_size)+start_y+circle_offset, square_size/1.25, square_size/1.25];
 
                 match board.get_space(j, i){
                     Space::Empty => {space_playable.draw(rect, &c.draw_state, c.transform, g);},
@@ -70,9 +72,9 @@ impl game_view{
 
                     Space::Full(p) => {space_playable.draw(rect, &c.draw_state, c.transform, g);
                                         if p.get_player() == p1{
-                                                p1_piece.draw(rect, &c.draw_state, c.transform, g);
+                                                p1_piece.draw(circ, &c.draw_state, c.transform, g);
                                         }else{
-                                                p2_piece.draw(rect, &c.draw_state, c.transform, g);
+                                                p2_piece.draw(circ, &c.draw_state, c.transform, g);
                                         }
                                     }
                 }
