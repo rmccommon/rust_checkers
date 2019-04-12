@@ -11,15 +11,15 @@ use crate::game_board::{Board, Space};
 use crate::player::Player;
 use crate::piece::Piece;
 
-pub struct game_view{
+pub struct GameView{
     board_size: f64,
     background_color: Color,
 }
 
-impl game_view{
+impl GameView{
 
-    pub fn new(size:f64,)-> game_view{
-        game_view{board_size:size, background_color:[1.0,1.0,1.0,1.0]}
+    pub fn new(size:f64,)-> GameView{
+        GameView{board_size:size, background_color:[1.0,1.0,1.0,1.0]}
     }
 
     //This is the function that draws the checkers board and its pieces
@@ -36,6 +36,7 @@ impl game_view{
         //[red, green, blue, alpha]
         let red:Color = [1.0,0.0,0.0,1.0];
         let black:Color = [0.0,0.0,0.0,1.0];
+        let yellow:Color = [1.0,1.0,0.0,0.25];
 
         //Colors of the players pieces
         let p1_color = [153.0/255.0, 0.0, 0.0, 1.0];
@@ -80,6 +81,13 @@ impl game_view{
                 }
             }
         }
+        if let Some(select_square) = controller.selected_space {
+            let rect = [((select_square[1] as f64)*square_size)+start_x, ];
+        }
+
+
+
+
     }
 
 }

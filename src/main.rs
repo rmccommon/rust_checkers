@@ -34,10 +34,11 @@ fn main() {
 
     let mut board1 = game_board::Board::new();
     board1.setup_board();
-    let g_view = game::game_view::new(500.0);
+    let g_view = game::GameView::new(500.0);
     let mut player1 = player::Player::new(0, board1);
 
     while let Some(e) = events.next(&mut window){
+        player1.event(&e);
         if let Some(args) = e.render_args() {
             gl.draw(args.viewport(), |c,g| {
                 use graphics::clear;
