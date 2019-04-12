@@ -19,11 +19,11 @@ impl Player{
     }
 
     fn check_move(x1:i32, y1:i32, x2:i32, y2:i32) -> bool{
-	if (x2-x1 == 1 || x2-x1 == -1) && (y2-y1 == 1 || y2-y1 == -1) {
-		true
-	}else{
-		false
-	}
+	       if (x2-x1 == 1 || x2-x1 == -1) && (y2-y1 == 1 || y2-y1 == -1) {
+		         true
+	       }else{
+		         false
+           }
     }
 
     //This moves a piece to an empty spot
