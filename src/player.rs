@@ -4,7 +4,6 @@ Since it's checkers there will only be two players in a match.
 it will have methods for moving pieces around and attacking.
 */
 
-use crate::piece::Piece;
 use crate::game_board::Board;
 
 pub struct Player{
@@ -24,6 +23,9 @@ impl Player{
 	       }else{
 		         false
            }
+    }
+    pub fn get_board(&self)->&Board{
+        &self.board
     }
 
     //This moves a piece to an empty spot
