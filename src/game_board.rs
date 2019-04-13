@@ -73,6 +73,10 @@ impl Board{
 
     //Checks if a space is Empty, used for moving pieces
     pub fn is_empty(&self, x:usize, y:usize) -> bool{
+        //This is to check for out of bounds
+        if x >= 10 || y >= 10{
+            return false;
+        }
         match self.b_array[y][x]{
             Space::Empty => true,
             _ => false
@@ -83,7 +87,7 @@ impl Board{
     pub fn get_piece(&self, x:usize, y:usize) -> Option<Piece>{
         match &self.b_array[y][x]{
             Space::Full(p) => {Some(*p)},
-            _ => {panic!("No Piece Found!")}
+            _ => {None}
         }
     }
 
@@ -105,7 +109,18 @@ impl Board{
         }
     }
 
+    pub fn move_piece(&mut self, x:usize, y:usize, x2:usize, y2:usize){
+            if let Some(piece) = self.get_piece(x, y){
+                self.add_piece(piece, x2, y2);
+                self.remove_piece(x, y);
+            }
+    }
+
+
+
 }
+
+
 
 //Implements how to display a board if it is in a println! function
 impl std::fmt::Display for Board{
