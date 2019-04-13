@@ -37,7 +37,8 @@ impl GameView{
         let red:Color = [1.0,0.0,0.0,1.0];
         let black:Color = [0.0,0.0,0.0,1.0];
         let yellow:Color = [1.0,1.0,0.0,0.10];
-        let bluish:Color = [66.0/255.0, 140.0/255.0, 1.0, 0.15];
+        let bluish:Color = [66.0/255.0, 140.0/255.0, 1.0, 0.25];
+        let green:Color = [0.0, 1.0, 0.0, 0.60];
 
         //Colors of the players pieces
         let p1_color = [153.0/255.0, 0.0, 0.0, 1.0];
@@ -84,13 +85,19 @@ impl GameView{
         }
 
         let space_selected = Rectangle::new(yellow);
+        let attack_space = Rectangle::new(green);
+        let possible_space = Rectangle::new(bluish);
         if let Some(select_square) = controller.selected_space {
             let rect = [((select_square[0] as f64)*square_size)+start_x,((select_square[1] as f64)*square_size)+start_y, square_size, square_size];
             space_selected.draw(rect, &c.draw_state, c.transform, g);
         }
 
-        let possible_space = Rectangle::new(bluish);
-        if let Some(poss_moves) = &controller.possible_moves{
+        if let Some(attack_ms) = &controller.attack_moves{
+            for a in attack_ms.iter(){
+                let rect = [((a[0].0 as f64)*square_size)+start_x,((a[0].1 as f64)*square_size)+start_y, square_size, square_size];
+                attack_space.draw(rect, &c.draw_state, c.transform, g);
+            }
+        }else if let Some(poss_moves) = &controller.possible_moves{
             for m in poss_moves.iter(){
                 let rect = [((m[0] as f64)*square_size)+start_x,((m[1] as f64)*square_size)+start_y, square_size, square_size];
                 possible_space.draw(rect, &c.draw_state, c.transform, g);

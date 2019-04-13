@@ -85,6 +85,9 @@ impl Board{
 
     //Gets the piece thats on that x,y coordinate
     pub fn get_piece(&self, x:usize, y:usize) -> Option<Piece>{
+        if x>=10 || y >= 10{
+            return None;
+        }
         match &self.b_array[y][x]{
             Space::Full(p) => {Some(*p)},
             _ => {None}
