@@ -27,7 +27,7 @@ impl GameView{
         use graphics::{Rectangle,Ellipse,Image, Transformed};
         //this is the starting location of the board in the Window
         //(0, 0) is the upper left corner of the window
-        let (start_x, start_y) = (5.0, 1000.0);
+        let (start_x, start_y) = (5.0, 10.0);
 
         //Colors of the spaces on the Board
         //[red, green, blue, alpha]
@@ -38,27 +38,26 @@ impl GameView{
         let green:Color = [0.0, 1.0, 0.0, 0.60];
 
         //This is the string that shows up on screen
-        let mut status_string = String::from("Player ");
+        let mut status_string = String::from("");
         if controller.id == 0{
-            status_string.push_str("1's Turn.");
+            status_string.push_str("Black's Turn.");
         }else{
-            status_string.push_str("2's Turn.");
+            status_string.push_str("Red's Turn.");
         }
 
         //This is how to draw the sting on screen
         let turn_status = Image::new_color(self.text_color);
         let mut i:f64 = 0.0;
-
+        let letter_space_length = 10.0;
+        let x_pos:f64 = (self.board_size/2.0)-((letter_space_length*(status_string.len() as f64))/2.0);
+        let y_pos:f64 = 8.0;
         for ch in status_string.chars(){
-            let x_pos:f64 = (self.board_size/2.0)-10.0;
-            let y_pos:f64 = 100.0;
-            if let Ok(letter) = glyphs.character(30, ch){
-                println!("{}", letter.left());
-                let ch_x = x_pos + letter.left();
+            if let Ok(letter) = glyphs.character(13, ch){
+                let ch_x = x_pos + letter.left() + i;
                 let ch_y = y_pos - letter.top();
                 turn_status.draw(letter.texture, &c.draw_state, c.transform.trans(ch_x,ch_y), g);
             }
-            i = i + 1.0;
+            i = i + letter_space_length;
         }
         //turn_status.draw(&status_string,  , &c.draw_state, c.transform, g);
 
