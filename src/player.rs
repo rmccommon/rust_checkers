@@ -4,6 +4,7 @@ Since it's checkers there will only be two players in a match.
 it will have methods for moving pieces around and attacking.
 */
 
+use crate::piece::Piece;
 use piston::input::GenericEvent;
 
 use crate::game_board::Board;
@@ -82,76 +83,70 @@ impl Player{
 
 
     fn find_moves(&mut self){
-        let mut poss_m: Vec<[usize;2]> = Vec::new();
+        //closure to find simple moves(Non-attack moves)
+        let move_decider = |x:usize,y:usize, piece:Piece|{
+            let mut possible_moves:Vec<[usize;2]> = Vec::new();
+            //possible directions it can move
+            let left = ((x as isize) - 1) as usize;
+            let right = x + 1;
+            let up = ((y as isize) - 1) as usize;
+            let down = y+1;
+            //push them on to a vector
+            let mut x_dir:Vec<usize> = Vec::new();
+            x_dir.push(left);
+            x_dir.push(right);
+
+            //check which direction it can go up, down, or both
+            let mut y_dir:Vec<usize> = Vec::new();
+            if piece.is_king() {
+                y_dir.push(up);
+                y_dir.push(down);
+            }else if piece.get_player() == 0{
+                y_dir.push(down);
+            }else{
+                y_dir.push(up);
+            }
+            //go through all the directions and check if theres a move there
+            for poss_x in x_dir.iter(){
+                for poss_y in y_dir.iter(){
+                    if self.board.is_empty(*poss_x, *poss_y){
+                        //push the move on the vector
+                        possible_moves.push([*poss_x, *poss_y]);
+                    }
+
+                }
+            }
+
+            if possible_moves.is_empty(){
+                None
+            }else{
+                Some(possible_moves)
+            }
+        };
+        //closure to find simple moves upward
+        let move_up = |x:usize, y:usize|{
+        };
+        let mut poss_m: Option<Vec<[usize;2]>> = None;
         let mut attack_ms: Vec<[(usize,usize);2]> = Vec::new();
         //check if a space has been selected
         if let Some(selected) = self.selected_space{
             //check if there is a piece on that space
             let x = selected[0];
             let y = selected[1];
-            let left = ((x as isize)-1) as usize;
-            let right = x+1;
             if let Some(piece) = self.board.get_piece(x, y){
                 if piece.get_player() != self.id{
                     self.possible_moves = None;
                     self.attack_moves = None;
                     return;
                 }
-                //check what side it's on
-                if piece.get_player() == 0 {
-                    println!("player 1's piece");
-
-                    //simple moves at the moment
-                    if self.board.is_empty(((x as isize) - 1) as usize, y+1){
-                        poss_m.push([x-1, y+1]);
-                    //this is the check for attack moves
-                    }else if let Some(piece) = self.board.get_piece(left, y+1){
-                        if piece.get_player() == 1 && self.board.is_empty(left-1, y+2){
-                            attack_ms.push([(left-1, y+2), (left,y+1)]);
-                        }
-                    }
-                    if self.board.is_empty(right, y+1){
-                        poss_m.push([right, y+1]);
-                    }else if let Some(piece) = self.board.get_piece(right, y+1){
-                        if piece.get_player() == 1 && self.board.is_empty(right+1, y+2){
-                            attack_ms.push([(right+1, y+2), (right,y+1)]);
-                        }
-                    }
-
-                }else{
-                    println!("player 2's piece");
-                    //Simple moves
-                    if self.board.is_empty(((x as isize) - 1) as usize, ((y as isize) - 1) as usize){
-                        poss_m.push([x-1, y-1]);
-                    }else if let Some(piece) = self.board.get_piece(left, ((y as isize)-1) as usize){
-                        if piece.get_player() == 0 && self.board.is_empty(left-1, ((y as isize)-2) as usize){
-                            attack_ms.push([(left-1, y-2), (left,y-1)]);
-                        }
-                    }
-                    if self.board.is_empty(x+1, ((y as isize) - 1) as usize){
-                        poss_m.push([x+1, y-1]);
-                    }else if let Some(piece) = self.board.get_piece(right, ((y as isize)-1) as usize){
-                        if piece.get_player() == 0 && self.board.is_empty(right+1, ((y as isize)-2) as usize){
-                            attack_ms.push([(right+1, y-2), (right,y-1)]);
-                        }
-                    }
-
-                }
-
+                //simple moves at the moment
+                poss_m = move_decider(x,y,piece);
             }
         }
-        if !poss_m.is_empty() && attack_ms.is_empty(){
-            self.possible_moves = Some(poss_m);
-            self.attack_moves = None;
-        }else if !attack_ms.is_empty(){
-            self.attack_moves = Some(attack_ms);
-            self.possible_moves = None;
-        }else{
-            self.attack_moves = None;
-            self.possible_moves = None;
-        }
+        self.possible_moves = poss_m;
     }
 
+    //returns a reference to the board so the view can see it
     pub fn get_board(&self)->&Board{
         &self.board
     }
