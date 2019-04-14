@@ -14,7 +14,7 @@ use piston::window::WindowSettings;
 use piston::event_loop::{Events,EventLoop, EventSettings};
 use piston::input::RenderEvent;
 use glutin_window::GlutinWindow;
-use opengl_graphics::{OpenGL, GlGraphics};
+use opengl_graphics::{OpenGL, GlGraphics, Filter, GlyphCache, TextureSettings};
 
 
 mod piece;
@@ -36,6 +36,8 @@ fn main() {
     board1.setup_board();
     let g_view = game::GameView::new(500.0);
     let mut player1 = player::Player::new(0, board1);
+    let texture_settings = TextureSettings::new().filter(Filter::Nearest);
+    let ref mut glyphs = GlyphCache::new("assets/FiraSans-Regular.ttf", (), texture_settings).expect("Could not load font");
 
     while let Some(e) = events.next(&mut window){
         player1.event(&e);
@@ -44,7 +46,7 @@ fn main() {
                 use graphics::clear;
 
                 clear([1.0; 4], g);
-                g_view.draw(&player1, &c, g);
+                g_view.draw(&player1, glyphs, &c, g);
             })
         }
 

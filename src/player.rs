@@ -9,7 +9,7 @@ use piston::input::GenericEvent;
 use crate::game_board::Board;
 
 pub struct Player{
-    id:u8,
+    pub id:u8,
     board: Board,
     pub selected_space: Option<[usize; 2]>,
     pub possible_moves: Option<Vec<[usize; 2]>>,
@@ -29,11 +29,17 @@ impl Player{
 
     pub fn event<E: GenericEvent>(&mut self, e: &E){
         use piston::input::{Button, MouseButton};
+        let switch_turn = |player:u8| {
+            if player == 1{
+                0
+            }else{
+                1
+            }
+        };
 
 
         if let Some(pos) = e.mouse_cursor_args(){
             self.cursor_position = pos;
-            println!("x:{} y:{}",((self.cursor_position[0]-5.0)/50.0).floor() as usize, (self.cursor_position[1]-5.0)/50.0);
         }
 
         //TODO clean this up
@@ -50,6 +56,7 @@ impl Player{
                         if a[0].0 == x && a[0].1 == y{
                             self.board.remove_piece(a[1].0, a[1].1);
                             self.board.move_piece(x3, y3, a[0].0, a[0].1);
+                            self.id = switch_turn(self.id);
                         }
                     }
                 }else if let Some(poss_moves) = &self.possible_moves{
@@ -59,6 +66,7 @@ impl Player{
                                 let x2 = m[0];
                                 let y2 = m[1];
                                 self.board.move_piece(x3, y3, x2, y2);
+                                self.id = switch_turn(self.id);
                             }
                         }
                 }
@@ -72,6 +80,7 @@ impl Player{
 
     }
 
+
     fn find_moves(&mut self){
         let mut poss_m: Vec<[usize;2]> = Vec::new();
         let mut attack_ms: Vec<[(usize,usize);2]> = Vec::new();
@@ -83,6 +92,11 @@ impl Player{
             let left = ((x as isize)-1) as usize;
             let right = x+1;
             if let Some(piece) = self.board.get_piece(x, y){
+                if piece.get_player() != self.id{
+                    self.possible_moves = None;
+                    self.attack_moves = None;
+                    return;
+                }
                 //check what side it's on
                 if piece.get_player() == 0 {
                     println!("player 1's piece");
