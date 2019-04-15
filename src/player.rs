@@ -115,7 +115,7 @@ impl Player{
                     }
 
                 }
-            }
+        }
 
             if possible_moves.is_empty(){
                 None
