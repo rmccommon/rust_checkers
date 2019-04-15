@@ -16,7 +16,7 @@ pub struct Player{
     pub possible_moves: Option<Vec<[usize; 2]>>,
 
     //attack moves consist of [(destination_x, destination_y),(attacked_piece_x, attacked_piece_y)]
-    pub attack_moves: Option<Vec<[(usize,usize); 2]>>,
+    pub attack_moves: Option<Vec<Vec<(usize,usize)>>>,
 
     cursor_position: [f64;2],
 }
@@ -53,13 +53,17 @@ impl Player{
                 let x3 = selected[0];
                 let y3 = selected[1];
                 if let Some(attack_ms) = &self.attack_moves{
-                    for a in attack_ms.iter(){
-                        if a[0].0 == x && a[0].1 == y{
-                            self.board.remove_piece(a[1].0, a[1].1);
-                            self.board.move_piece(x3, y3, a[0].0, a[0].1);
-                            self.id = switch_turn(self.id);
+                    for mut atks:&&std::vec::Vec<(usize, usize)> in attack_ms{
+                        if let Some(a) = atks.pop(){
+                            if a.0 == x && a.1 == y{
+                                for at in atks.iter(){
+                                    self.board.remove_piece(at.0, at.1);
+                                }
+                                self.board.move_piece(x3, y3, a.0, a.1);
+                            }
                         }
                     }
+                    self.id = switch_turn(self.id);
                 }else if let Some(poss_moves) = &self.possible_moves{
 
                         for m in poss_moves.iter(){
@@ -73,7 +77,7 @@ impl Player{
                 }
             }
 
-            if x >= 0 && x <= 9 && y >= 0 && y<=9 {
+            if x <= 9 && y<=9 {
                 self.selected_space = Some([x,y]);
                 self.find_moves();
             }
@@ -123,11 +127,62 @@ impl Player{
                 Some(possible_moves)
             }
         };
-        //closure to find simple moves upward
-        let move_up = |x:usize, y:usize|{
+        //function to find attacks
+        fn attack_decider (controller: &Player,x:usize, y:usize, piece:Piece)->Option<Vec<Vec<(usize,usize)>>>{
+            let mut attack_moves:Vec<Vec<(usize, usize)>> = Vec::new();
+
+            let left = ((x as isize) - 1) as usize;
+            let attack_l = ((left as isize) - 1) as usize;
+            let right = x + 1;
+            let attack_r = right +1;
+            let up = ((y as isize) - 1) as usize;
+            let attack_up = ((up as isize) - 1) as usize;
+            let down = y+1;
+            let attack_down = down+1;
+
+
+            let mut x_dir:Vec<[usize;2]> = Vec::new();
+            x_dir.push([left, attack_l]);
+            x_dir.push([right, attack_r]);
+
+            let mut y_dir:Vec<[usize;2]> = Vec::new();
+            if piece.is_king() {
+                y_dir.push([up, attack_up]);
+                y_dir.push([down, attack_down]);
+            }else if piece.get_player() == 0{
+                y_dir.push([down, attack_down]);
+            }else{
+                y_dir.push([up, attack_up]);
+            }
+            let mut i = 0;
+            let mut j = 0;
+            for poss_y in y_dir.iter(){
+                for poss_x in x_dir.iter(){
+                    let am: Vec<(usize,usize)> = Vec::new();
+                    if let Some(other_piece) = controller.board.get_piece(poss_x[0], poss_y[0]){
+                        if other_piece.get_player() != piece.get_player() && controller.board.is_empty(poss_x[1], poss_y[1]){
+                            am.push((poss_x[0],poss_y[0]));
+                            am.push((poss_x[1],poss_y[1]));
+                            if let Some(mut additional) = attack_decider(controller,poss_x[1], poss_y[1], piece){
+                                am.pop();
+                                am.append(&mut additional[j]);
+                            }
+                            attack_moves.push(am);
+                        }
+                    }
+                    j = j+1;
+                }
+                i = i + 1;
+            }
+            if attack_moves.is_empty(){
+                None
+            }else{
+                Some(attack_moves)
+            }
+
         };
         let mut poss_m: Option<Vec<[usize;2]>> = None;
-        let mut attack_ms: Vec<[(usize,usize);2]> = Vec::new();
+        let mut attack_ms: Option<Vec<Vec<(usize,usize)>>> = None;
         //check if a space has been selected
         if let Some(selected) = self.selected_space{
             //check if there is a piece on that space
@@ -141,9 +196,16 @@ impl Player{
                 }
                 //simple moves at the moment
                 poss_m = move_decider(x,y,piece);
+                attack_ms = attack_decider(self, x, y, piece);
             }
         }
-        self.possible_moves = poss_m;
+        if attack_ms != None{
+            self.attack_moves = attack_ms;
+            self.possible_moves = None;
+        }else{
+            self.possible_moves = poss_m;
+            self.attack_moves = attack_ms;
+        }
     }
 
     //returns a reference to the board so the view can see it
