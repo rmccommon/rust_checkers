@@ -34,6 +34,7 @@ impl GameView{
         let red:Color = [1.0,0.0,0.0,1.0];
         let black:Color = [0.0,0.0,0.0,1.0];
         let yellow:Color = [1.0,1.0,0.0,0.10];
+        let bold_yellow:Color = [1.0,1.0,0.0,1.0];
         let bluish:Color = [66.0/255.0, 140.0/255.0, 1.0, 0.25];
         let green:Color = [0.0, 1.0, 0.0, 0.60];
 
@@ -74,6 +75,7 @@ impl GameView{
         let space_unplayable = Rectangle::new(black);
         let p1_piece = Ellipse::new(p1_color);
         let p2_piece = Ellipse::new(p2_color);
+        let king = Ellipse::new(bold_yellow);
         let circle_offset = square_size/10.0;
 
         //gets the board from the controller
@@ -87,7 +89,7 @@ impl GameView{
                 //creates the dimensions and position of where we want to draw a shape
                 let rect = [((j as f64)*square_size)+start_x, ((i as f64)*square_size)+start_y, square_size, square_size];
                 let circ = [((j as f64)*square_size)+start_x+circle_offset, ((i as f64)*square_size)+start_y+circle_offset, square_size/1.25, square_size/1.25];
-
+                let k_circ = [((j as f64)*square_size)+start_x+circle_offset-2.0, ((i as f64)*square_size)+start_y+circle_offset-2.0, square_size/1.15, square_size/1.15];
                 match board.get_space(j, i){
                     Space::Empty => {space_playable.draw(rect, &c.draw_state, c.transform, g);},
 
@@ -95,6 +97,9 @@ impl GameView{
 
 
                     Space::Full(p) => {space_playable.draw(rect, &c.draw_state, c.transform, g);
+                                        if p.is_king(){
+                                            king.draw(k_circ, &c.draw_state, c.transform, g);
+                                        }
                                         if p.get_player() == 1{
                                                 p1_piece.draw(circ, &c.draw_state, c.transform, g);
                                         }else{

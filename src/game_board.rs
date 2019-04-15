@@ -113,7 +113,13 @@ impl Board{
     }
 
     pub fn move_piece(&mut self, x:usize, y:usize, x2:usize, y2:usize){
-            if let Some(piece) = self.get_piece(x, y){
+            if let Some(mut piece) = self.get_piece(x, y){
+                if piece.get_player() == 0 && y2 == 9{
+                    piece.king_me();
+                }
+                if piece.get_player() == 1 && y2 == 0{
+                    piece.king_me();
+                }
                 self.add_piece(piece, x2, y2);
                 self.remove_piece(x, y);
             }

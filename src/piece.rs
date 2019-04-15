@@ -21,6 +21,12 @@ impl Piece {
         self.is_king
     }
 
+    pub fn king_me(&mut self){
+        if self.is_king == false{
+            self.is_king = true;
+        }
+    }
+
     //gets the player id that owns it
     pub fn get_player(&self)->u8{
         self.player
