@@ -132,8 +132,12 @@ impl Player{
                 Some(possible_moves)
             }
         };
+        /*                                                                 *\
+        ********************* Bug in this function *************************|
+        ******************************V************************************|
+        */
         //function to find attacks
-        fn attack_decider (controller: &Player,x:usize, y:usize, piece:Piece)->Option<Vec<Attack>>{
+        fn attack_decider (controller: &Player,x:usize, y:usize, piece:Piece, prev_x: usize, prev_y:usize)->Option<Vec<Attack>>{
             let mut attack_moves:Vec<Attack> = Vec::new();
 
             let left = ((x as isize) - 1) as usize;
@@ -162,13 +166,12 @@ impl Player{
             let mut j = 0;
             for poss_y in y_dir.iter(){
                 for poss_x in x_dir.iter(){
-
                     if let Some(other_piece) = controller.board.get_piece(poss_x[0], poss_y[0]){
-                        if other_piece.get_player() != piece.get_player() && controller.board.is_empty(poss_x[1], poss_y[1]){
+                        if other_piece.get_player() != piece.get_player() && controller.board.is_empty(poss_x[1], poss_y[1]) && (poss_x[0] != prev_x || poss_y[0] != prev_y){
                             let dead_p:Vec<(usize,usize)> = Vec::new();
                             let mut am = Attack{destination:(poss_x[1],poss_y[1]),dead_pieces: dead_p};
                             am.dead_pieces.push((poss_x[0],poss_y[0]));
-                            if let Some(mut additional) = attack_decider(controller,poss_x[1], poss_y[1], piece){
+                            if let Some(mut additional) = attack_decider(controller,poss_x[1], poss_y[1], piece, poss_x[0], poss_y[0]){
                                 am.destination = additional[j].destination;
                                 am.dead_pieces.append(&mut additional[j].dead_pieces);
                             }
@@ -201,7 +204,7 @@ impl Player{
                 }
                 //simple moves at the moment
                 poss_m = move_decider(x,y,piece);
-                attack_ms = attack_decider(self, x, y, piece);
+                attack_ms = attack_decider(self, x, y, piece, x,y);
             }
         }
         if let Some(at) = attack_ms{
