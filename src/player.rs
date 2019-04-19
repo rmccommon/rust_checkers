@@ -137,7 +137,7 @@ impl Player{
         ******************************V************************************|
         */
         //function to find attacks
-        fn attack_decider (controller: &Player,x:usize, y:usize, piece:Piece, prev_x: usize, prev_y:usize)->Option<Vec<Attack>>{
+        fn attack_decider (controller: &mut Player,x:usize, y:usize, piece:Piece, prev_x: usize, prev_y:usize)->Option<Vec<Attack>>{
             let mut attack_moves:Vec<Attack> = Vec::new();
 
             let left = ((x as isize) - 1) as usize;
@@ -167,7 +167,18 @@ impl Player{
             for poss_y in y_dir.iter(){
                 for poss_x in x_dir.iter(){
                     if let Some(other_piece) = controller.board.get_piece(poss_x[0], poss_y[0]){
-                        if other_piece.get_player() != piece.get_player() && controller.board.is_empty(poss_x[1], poss_y[1]) && (poss_x[0] != prev_x || poss_y[0] != prev_y){
+                        if other_piece.get_player() != piece.get_player() && controller.board.is_empty(poss_x[1], poss_y[1]){
+                            controller.board.place_dummy(poss_x[1], poss_y[1]);
+                            if let Some(followup_attacks) = attack_decider(controller, poss_x[1], poss_y[1], piece, 0, 0) {
+                                attack_moves = followup_attacks;
+                            } else {
+                                let mut dead_p:Vec<(usize, usize)> = Vec::new();
+                                dead_p.push((poss_x[0], poss_y[0]));
+                                attack_moves.push(Attack {destination: (poss_x[1], poss_y[1]), dead_pieces: dead_p});
+                            }
+
+
+/*
                             let dead_p:Vec<(usize,usize)> = Vec::new();
                             let mut am = Attack{destination:(poss_x[1],poss_y[1]),dead_pieces: dead_p};
                             am.dead_pieces.push((poss_x[0],poss_y[0]));
@@ -176,8 +187,8 @@ impl Player{
                                 am.dead_pieces.append(&mut additional[j].dead_pieces);
                             }
                             attack_moves.push(am);
-                            j = j+1;
-                        }
+                            j = j+1
+                            */                        }
                     }
 
                 }
@@ -189,6 +200,9 @@ impl Player{
             }
 
         };
+
+       // fn remove_dummies(controller: &mut Player)
+
         let mut poss_m: Option<Vec<[usize;2]>> = None;
         let mut attack_ms: Option<Vec<Attack>> = None;
         //check if a space has been selected
@@ -205,6 +219,7 @@ impl Player{
                 //simple moves at the moment
                 poss_m = move_decider(x,y,piece);
                 attack_ms = attack_decider(self, x, y, piece, x,y);
+                self.board.remove_dummies();
             }
         }
         if let Some(at) = attack_ms{

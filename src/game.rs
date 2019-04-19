@@ -95,6 +95,7 @@ impl GameView{
 
                     Space::NotPlayable => {space_unplayable.draw(rect, &c.draw_state, c.transform, g);},
 
+                    Space::Dummy => {space_playable.draw(rect, &c.draw_state, c.transform, g);},
 
                     Space::Full(p) => {space_playable.draw(rect, &c.draw_state, c.transform, g);
                                         if p.is_king(){
