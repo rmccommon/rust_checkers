@@ -7,9 +7,8 @@ use graphics::types::Color;
 use graphics::{Context, Graphics};
 use graphics::character::CharacterCache;
 
-use crate::game_board::{Board, Space};
-use crate::player::{Player, Attack};
-use crate::piece::Piece;
+use crate::game_board::{Space};
+use crate::player::{Player};
 
 pub struct GameView{
     board_size: f64,
@@ -121,7 +120,7 @@ impl GameView{
 
         if let Some(attack_ms) = &controller.attack_moves{
             for atks in attack_ms.iter(){
-                let a = atks.destination;
+                let a = atks[0].destination;
                 let rect = [((a.0 as f64)*square_size)+start_x,((a.1 as f64)*square_size)+start_y, square_size, square_size];
                 attack_space.draw(rect, &c.draw_state, c.transform, g);
             }

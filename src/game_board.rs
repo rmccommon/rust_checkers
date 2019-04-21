@@ -6,7 +6,6 @@ Get pieces on the board.
 Add/Remove pieces.
 */
 use crate::piece::Piece;
-use std::error::Error;
 
 
 //This is the enum for what a space on the board can be
@@ -47,7 +46,7 @@ impl Board{
     }
 
     pub fn place_dummy(&mut self, x: usize, y: usize) {
-        self.b_array[x][y] = Space::Dummy;
+        self.b_array[y][x] = Space::Dummy;
     }
 
     pub fn setup_board(&mut self){
@@ -131,14 +130,14 @@ impl Board{
             }
     }
     pub fn remove_dummies(&mut self){
-        for y in 0..9{
-            for x in 0..9{
+        for y in 0..10{
+            for x in 0..10{
                 match self.b_array[x][y] {
                     Space::Dummy => {self.b_array[x][y] = Space::Empty;},
                     _ => {}
+                }
             }
         }
-    }
     }
 
 
@@ -154,7 +153,7 @@ impl std::fmt::Display for Board{
         for row in 0..10{
             for col in 0..10{
                 match self.b_array[row][col]{
-                    Space::Dummy => {panic!("DUMMY NOT REMOVED YOU DUMMY");},
+                    Space::Dummy => {panic!("DUMMY SHOULD BE REMOVED YOU DUMMY");},
                     Space::NotPlayable => {str = format!("{}[X]", str);},
                     Space::Empty => {str = format!("{}[ ]", str);},
                     Space::Full(p) => {str = format!("{}[{}]",str, p.get_player());},

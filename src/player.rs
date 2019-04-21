@@ -11,7 +11,7 @@ use crate::game_board::Board;
 
 pub struct Attack{
         pub destination:(usize,usize),
-        pub dead_pieces:Vec<(usize,usize)>
+        pub dead_piece:(usize,usize)
 }
 
 pub struct Player{
@@ -21,7 +21,7 @@ pub struct Player{
     pub possible_moves: Option<Vec<[usize; 2]>>,
 
     //attack moves consist of [(destination_x, destination_y),(attacked_piece_x, attacked_piece_y)]
-    pub attack_moves: Option<Vec<Attack>>,
+    pub attack_moves: Option<Vec<Vec<Attack>>>,
     cursor_position: [f64;2],
 }
 
@@ -57,16 +57,17 @@ impl Player{
                 let x3 = selected[0];
                 let y3 = selected[1];
                 if let Some(attack_ms) = &self.attack_moves{
-                    for atks in attack_ms{
+                    for atk_seq in attack_ms {
+                        let atks = &atk_seq[0];
                         let a = atks.destination;
-                            if a.0 == x && a.1 == y{
-                                for at in atks.dead_pieces.iter(){
-                                    self.board.remove_piece(at.0, at.1);
-                                }
-                                self.board.move_piece(x3, y3, a.0, a.1);
-                                self.id = switch_turn(self.id);
+                        if a.0 == x && a.1 == y{
+                            for atk in atk_seq {
+                                let at = atk.dead_piece;
+                                self.board.remove_piece(at.0, at.1);
                             }
-
+                            self.board.move_piece(x3, y3, a.0, a.1);
+                            self.id = switch_turn(self.id);
+                        }
                     }
 
                 }else if let Some(poss_moves) = &self.possible_moves{
@@ -120,6 +121,7 @@ impl Player{
                 for poss_y in y_dir.iter(){
                     if self.board.is_empty(*poss_x, *poss_y){
                         //push the move on the vector
+                        
                         possible_moves.push([*poss_x, *poss_y]);
                     }
 
@@ -137,8 +139,8 @@ impl Player{
         ******************************V************************************|
         */
         //function to find attacks
-        fn attack_decider (controller: &mut Player,x:usize, y:usize, piece:Piece, prev_x: usize, prev_y:usize)->Option<Vec<Attack>>{
-            let mut attack_moves:Vec<Attack> = Vec::new();
+        fn attack_decider (controller: &mut Player,x:usize, y:usize, piece:Piece)->Option<Vec<Vec<Attack>>>{
+            let mut attack_moves:Vec<Vec<Attack>> = Vec::new();
 
             let left = ((x as isize) - 1) as usize;
             let attack_l = ((left as isize) - 1) as usize;
@@ -146,8 +148,8 @@ impl Player{
             let attack_r = right +1;
             let up = ((y as isize) - 1) as usize;
             let attack_up = ((up as isize) - 1) as usize;
-            let down = y+1;
-            let attack_down = down+1;
+            let down = y + 1;
+            let attack_down = down + 1;
 
 
             let mut x_dir:Vec<[usize;2]> = Vec::new();
@@ -163,32 +165,22 @@ impl Player{
             }else{
                 y_dir.push([up, attack_up]);
             }
-            let mut j = 0;
             for poss_y in y_dir.iter(){
                 for poss_x in x_dir.iter(){
                     if let Some(other_piece) = controller.board.get_piece(poss_x[0], poss_y[0]){
                         if other_piece.get_player() != piece.get_player() && controller.board.is_empty(poss_x[1], poss_y[1]){
                             controller.board.place_dummy(poss_x[1], poss_y[1]);
-                            if let Some(followup_attacks) = attack_decider(controller, poss_x[1], poss_y[1], piece, 0, 0) {
-                                attack_moves = followup_attacks;
+                            if let Some(followup_attacks) = attack_decider(controller, poss_x[1], poss_y[1], piece) {
+                                for mut attack_seq in followup_attacks {
+                                    attack_seq.push(Attack {destination: (poss_x[1], poss_y[1]), dead_piece: (poss_x[0], poss_y[0])});
+                                    attack_moves.push(attack_seq);
+                                }
                             } else {
-                                let mut dead_p:Vec<(usize, usize)> = Vec::new();
-                                dead_p.push((poss_x[0], poss_y[0]));
-                                attack_moves.push(Attack {destination: (poss_x[1], poss_y[1]), dead_pieces: dead_p});
-                            }
-
-
-/*
-                            let dead_p:Vec<(usize,usize)> = Vec::new();
-                            let mut am = Attack{destination:(poss_x[1],poss_y[1]),dead_pieces: dead_p};
-                            am.dead_pieces.push((poss_x[0],poss_y[0]));
-                            if let Some(mut additional) = attack_decider(controller,poss_x[1], poss_y[1], piece, poss_x[0], poss_y[0]){
-                                am.destination = additional[j].destination;
-                                am.dead_pieces.append(&mut additional[j].dead_pieces);
-                            }
-                            attack_moves.push(am);
-                            j = j+1
-                            */                        }
+                                let mut attack_sequence: Vec<Attack> = Vec::new();
+                                attack_sequence.push(Attack {destination: (poss_x[1], poss_y[1]), dead_piece: (poss_x[0], poss_y[0])});
+                                attack_moves.push(attack_sequence);
+                            }                    
+                        }
                     }
 
                 }
@@ -201,10 +193,10 @@ impl Player{
 
         };
 
-       // fn remove_dummies(controller: &mut Player)
 
         let mut poss_m: Option<Vec<[usize;2]>> = None;
-        let mut attack_ms: Option<Vec<Attack>> = None;
+        let mut attack_ms: Option<Vec<Vec<Attack>>> = None;
+
         //check if a space has been selected
         if let Some(selected) = self.selected_space{
             //check if there is a piece on that space
@@ -217,8 +209,9 @@ impl Player{
                     return;
                 }
                 //simple moves at the moment
+
                 poss_m = move_decider(x,y,piece);
-                attack_ms = attack_decider(self, x, y, piece, x,y);
+                attack_ms = attack_decider(self, x, y, piece);
                 self.board.remove_dummies();
             }
         }
